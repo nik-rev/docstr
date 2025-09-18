@@ -89,26 +89,26 @@ use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenSt
 /// ```rust
 /// use docstr::docstr;
 ///
-/// let hello_world: &'static str = docstr!(format
-///     /// fn main() {
+/// let hello_world: String = docstr!(format
+///     /// fn say_hi() {{
 ///     ///     println!("Hello, my name is {}");
-///     /// }
+///     /// }}
 /// "Bob");
 ///
-/// assert_eq!(hello_world_in_c, r#"fn main() {
+/// assert_eq!(hello_world, r#"fn say_hi() {
 ///     println!("Hello, my name is Bob");
-/// }"#)
+/// }"#);
 /// ```
 ///
 /// Expands to this:
 ///
 /// ```rust
-/// format!(r#"fn main() {
+/// format!(r#"fn say_hi() {{
 ///     println!("Hello, my name is {}");
-/// }"#, "Bob")
+/// }}"#, "Bob");
 /// ```
 ///
-/// See the [crate-level] documentation for more info
+/// See the [crate-level](crate) documentation for more info
 #[proc_macro]
 pub fn docstr(input: TokenStream) -> TokenStream {
     let mut input = input.into_iter().peekable();
