@@ -1,7 +1,114 @@
-//! Incredibly ergonomic multi-line string literals in Rust
+//! [![crates.io](https://img.shields.io/crates/v/docstr?style=flat-square&logo=rust)](https://crates.io/crates/docstr)
+//! [![docs.rs](https://img.shields.io/badge/docs.rs-auto__enums-blue?style=flat-square&logo=docs.rs)](https://docs.rs/docstr)
+//! [![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)](#license)
+//! [![msrv](https://img.shields.io/badge/msrv-1.56-blue?style=flat-square&logo=rust)](https://www.rust-lang.org)
+//! [![github](https://img.shields.io/github/stars/nik-rev/docstr)](https://github.com/nik-rev/docstr)
+//!
+//! This crate provides a procedural macro for ergonomically creating multi-line string literals.
+//! It is an alternative to [`indoc`](https://docs.rs/indoc/latest/indoc/).
+//!
+//! ```toml
+//! [dependencies]
+//! docstr = "0.1"
+//! ```
+//!
+//! # Usage
+//!
+//! It takes documentation comments as arguments and converts them into a `&'static str`
+//!
+//! ```rust
+//! use docstr::docstr;
+//!
+//! let hello_world_in_c: &'static str = docstr!(
+//!     /// #include <stdio.h>
+//!     ///
+//!     /// int main(int argc, char **argv) {
+//!     ///     printf("hello world\n");
+//!     ///     return 0;
+//!     /// }
+//! );
+//!
+//! assert_eq!(hello_world_in_c, r#"#include <stdio.h>
+//!
+//! int main(int argc, char **argv) {
+//!     printf("hello world\n");
+//!     return 0;
+//! }"#)
+//! ```
+//!
+//! # Macros
+//!
+//! `docstr!` can pass the generated string to any macro:
+//!
+//! ```rust
+//! use docstr::docstr;
+//!
+//! let age = 21;
+//! let name = "Bob";
+//! let colors = ["red", "green", "blue"];
+//!
+//! let greeting: String = docstr!(format
+//!                              //^^^^^^ the generated string is passed to `format!`
+//!                              //       as the 1st argument
+//!     /// Hello, my name is {name}.
+//!     /// I am {age} years old!
+//!     ///
+//!     /// My favorite color is: {}
+//!
+//!     // anything after the doc comments is passed directly at the end
+//!     colors[1]
+//! );
+//! //^ above expands to: format!("...", colors[1])
+//!
+//! assert_eq!(greeting, "Hello, my name is Bob.\nI am 21 years old!\n\nMy favorite color is: green");
+//! ```
+//!
+//! Injecting arguments before the generated string is also possible.
+//!
+//! ```rust
+//! # let mut w = String::new();
+//! # use std::fmt::Write as _;
+//! # use docstr::docstr;
+//! docstr!(write, w
+//!    /// Hello, world!
+//! );
+//! ```
+//!
+//! Expands to:
+//!
+//! ```rust
+//! # let mut w = String::new();
+//! # use std::fmt::Write as _;
+//! write!(w, "Hello, world!");
+//! ```
 
 use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
 
+/// Turns documentation comment into string at compile-time.
+///
+/// ```rust
+/// use docstr::docstr;
+///
+/// let hello_world: &'static str = docstr!(format
+///     /// fn main() {
+///     ///     println!("Hello, my name is {}");
+///     /// }
+/// "Bob");
+///
+/// assert_eq!(hello_world_in_c, r#"fn main() {
+///     println!("Hello, my name is Bob");
+/// }"#)
+/// ```
+///
+/// Expands to this:
+///
+/// ```rust
+/// format!(r#"fn main() {
+///     println!("Hello, my name is {}");
+/// }"#, "Bob")
+/// ```
+///
+/// See the [crate-level] documentation for more info
 #[proc_macro]
 pub fn docstr(input: TokenStream) -> TokenStream {
     let mut input = input.into_iter().peekable();
@@ -239,42 +346,28 @@ pub fn docstr(input: TokenStream) -> TokenStream {
     // becomes this:
     //
     // "foo\nbar"
-    let string = TokenTree::Literal(Literal::string(
-        &doc_comments
-            .into_iter()
-            .reduce(|mut acc, s| {
-                acc.push('\n');
-                acc.push_str(&s);
-                acc
-            })
-            .unwrap_or_default(),
-    ));
+    let string = doc_comments
+        .into_iter()
+        .reduce(|mut acc, s| {
+            acc.push('\n');
+            acc.push_str(&s);
+            acc
+        })
+        .unwrap_or_default();
 
-    // Our default is macro `format!` which doesn't accept any arguments before the string literal itself
-    if macro_.is_none() && !before.is_empty() {
-        compile_error(
-            Span::call_site(),
-            "expected macro input to only contain doc comments `///`, because you haven't supplied a path to a macro as the 1st argument",
-        );
-    }
-
-    // Just a plain string literal, no custom `macro` and no `after`
-    if macro_.is_none() && after.is_empty() {
-        return string.into();
-    }
-
-    // Macro path
-    let macro_ = macro_.unwrap_or_else(|| {
-        // If user didn't supply a macro path, let's default to `::std::format`
-        TokenStream::from_iter([
-            TokenTree::Punct(Punct::new(':', Spacing::Joint)),
-            TokenTree::Punct(Punct::new(':', Spacing::Joint)),
-            TokenTree::Ident(Ident::new("std", Span::call_site())),
-            TokenTree::Punct(Punct::new(':', Spacing::Joint)),
-            TokenTree::Punct(Punct::new(':', Spacing::Joint)),
-            TokenTree::Ident(Ident::new("format", Span::call_site())),
-        ])
-    });
+    let Some(macro_) = macro_ else {
+        if !after.is_empty() || !after.is_empty() {
+            compile_error(
+                Span::call_site(),
+                concat!(
+                    "expected macro input to only contain doc comments `///`, ",
+                    "because you haven't supplied a path to a macro as the 1st argument"
+                ),
+            );
+        }
+        // Just a plain string literal
+        return TokenTree::Literal(Literal::string(&string)).into();
+    };
 
     // The following:
     //
@@ -310,13 +403,13 @@ pub fn docstr(input: TokenStream) -> TokenStream {
                         .chain([
                             // format!(hello, "foo\nbar", a, b)
                             //                ^^^^^^^^^
-                            string,
+                            TokenTree::Literal(Literal::string(&string)),
                             // format!(hello, "foo\nbar", a, b)
                             //                         ^
                             TokenTree::Punct(Punct::new(',', Spacing::Joint)),
                         ])
                         // format!(hello, "foo\nbar", a, b)
-                        //                           ^^^^
+                        //                            ^^^^
                         .chain(after),
                 ),
             )),

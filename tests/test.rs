@@ -35,12 +35,22 @@ mod tests {
     #[test]
     fn format() {
         assert_eq!(
-            docstr!(
+            docstr!(format
                 /// Hello, my name is {}
                 /// and I am {AGE} years old
-                "Bob"
-            ),
+            "Bob"),
             format!("Hello, my name is Bob\nand I am {AGE} years old")
+        );
+    }
+
+    /// NO macro, but `{}`
+    #[test]
+    fn fake_interpolation() {
+        assert_eq!(
+            docstr!(
+                /// I am {AGE} years old
+            ),
+            "I am {AGE} years old"
         );
     }
 
