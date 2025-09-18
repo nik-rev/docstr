@@ -4,8 +4,8 @@
 
 [![crates.io](https://img.shields.io/crates/v/docstr?style=flat-square&logo=rust)](https://crates.io/crates/docstr)
 [![docs.rs](https://img.shields.io/badge/docs.rs-docstr-blue?style=flat-square&logo=docs.rs)](https://docs.rs/docstr)
-[![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)](#license)
-[![msrv](https://img.shields.io/badge/msrv-1.56-blue?style=flat-square&logo=rust)](https://www.rust-lang.org)
+![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)
+![msrv](https://img.shields.io/badge/msrv-1.56-blue?style=flat-square&logo=rust)
 [![github](https://img.shields.io/github/stars/nik-rev/docstr)](https://github.com/nik-rev/docstr)
 
 This crate provides a procedural macro for ergonomically creating multi-line string literals.
