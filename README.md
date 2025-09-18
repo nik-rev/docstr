@@ -18,7 +18,7 @@ docstr = "0.1"
 
 ## Usage
 
-[`docstr!`](https://docs.rs/docstr/latest/docstr/fn.docstr.html) takes documentation comments as arguments and converts them into a string
+`docstr!` takes documentation comments as arguments and converts them into a string
 
 ```rust
 use docstr::docstr;
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 
 ## Macros
 
-[`docstr!`](https://docs.rs/docstr/latest/docstr/fn.docstr.html) can pass the generated string to any macro:
+`docstr!` can pass the generated string to any macro:
 
 ```rust
 use docstr::docstr;
