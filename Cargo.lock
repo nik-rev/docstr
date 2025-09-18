@@ -3,5 +3,14 @@
 version = 4
 
 [[package]]
-name = "formatm"
+name = "docstr"
 version = "0.1.0"
+dependencies = [
+ "litrs",
+]
+
+[[package]]
+name = "litrs"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e4cf394bcd88ba72eb3b2862e21ef6458b0e1586654e213b0176e667bb9d19e"

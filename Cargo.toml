@@ -1,9 +1,18 @@
 [package]
-name = "formatm"
+name = "docstr"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
+description = "Ergonomic multi-line string literals"
+rust-version = "1.56"
+authors = ["Nik Revenco <pm@nikrev.com>"]
+repository = "https://github.com/nik-rev/docstr"
+keywords = ["heredoc", "nowdoc", "multiline", "string", "literal"]
+categories = ["data-structures", "rust-patterns"]
+license = "MIT OR Apache-2.0"
 
 [dependencies]
+# std does not provide a way for us to get content of the `proc_macro::Literal`
+litrs = "0.5"
 
 [lib]
 proc-macro = true
