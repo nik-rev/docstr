@@ -13,7 +13,7 @@ It is an alternative to [`indoc`](https://docs.rs/indoc/latest/indoc/).
 
 ```toml
 [dependencies]
-docstr = "0.1"
+docstr = "0.2"
 ```
 
 ## Usage

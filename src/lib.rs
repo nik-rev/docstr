@@ -9,7 +9,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! docstr = "0.1"
+//! docstr = "0.2"
 //! ```
 //!
 //! # Usage
@@ -145,7 +145,14 @@ pub fn docstr(input: TokenStream) -> TokenStream {
             Some(path)
         }
         // Macro input is totally empty - just expand to an empty string
-        None => return TokenStream::from_iter([TokenTree::Literal(Literal::string(""))]),
+        None => {
+            return CompileError::new(
+                Span::call_site(),
+                "expected at least 1 documentation comment `/// ...`",
+            )
+            .into_iter()
+            .collect()
+        }
     };
 
     // If we encounter any errors, we collect them into here
@@ -334,6 +341,15 @@ pub fn docstr(input: TokenStream) -> TokenStream {
         let literal = literal.strip_prefix(' ').unwrap_or(literal);
 
         doc_comments.push(literal.to_string());
+    }
+
+    if doc_comments.is_empty() {
+        return CompileError::new(
+            Span::call_site(),
+            "expected at least 1 documentation comment `/// ...`",
+        )
+        .into_iter()
+        .collect();
     }
 
     // The fully constructed string literal that we output

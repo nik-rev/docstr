@@ -25,12 +25,6 @@ mod tests {
         assert_eq!(B, "foo\nbar\n", "newline at end");
     }
 
-    /// Empty string
-    #[test]
-    fn empty() {
-        assert_eq!(docstr!(), "", "empty string");
-    }
-
     /// Can do string interpolation
     #[test]
     fn format() {
