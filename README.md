@@ -1,5 +1,7 @@
 # `docstr`
 
+<!-- cargo-rdme start -->
+
 [![crates.io](https://img.shields.io/crates/v/docstr?style=flat-square&logo=rust)](https://crates.io/crates/docstr)
 [![docs.rs](https://img.shields.io/badge/docs.rs-docstr-blue?style=flat-square&logo=docs.rs)](https://docs.rs/docstr)
 [![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)](#license)
@@ -14,16 +16,16 @@ It is an alternative to [`indoc`](https://docs.rs/indoc/latest/indoc/).
 docstr = "0.1"
 ```
 
-# Usage
+## Usage
 
-It takes documentation comments as arguments and converts them into a `&'static str`
+[`docstr!`](https://docs.rs/docstr/latest/docstr/fn.docstr.html) takes documentation comments as arguments and converts them into a string
 
 ```rust
 use docstr::docstr;
 
 let hello_world_in_c: &'static str = docstr!(
     /// #include <stdio.h>
-    /// 
+    ///
     /// int main(int argc, char **argv) {
     ///     printf("hello world\n");
     ///     return 0;
@@ -38,9 +40,9 @@ int main(int argc, char **argv) {
 }"#)
 ```
 
-# Macros
+## Macros
 
-`docstr!` can pass the generated string to any macro:
+[`docstr!`](https://docs.rs/docstr/latest/docstr/fn.docstr.html) can pass the generated string to any macro:
 
 ```rust
 use docstr::docstr;
@@ -69,7 +71,7 @@ Injecting arguments before the generated string is also possible.
 
 ```rust
 docstr!(write, w
-  /// Hello, world!
+   /// Hello, world!
 );
 ```
 
@@ -78,3 +80,5 @@ Expands to:
 ```rust
 write!(w, "Hello, world!");
 ```
+
+<!-- cargo-rdme end -->

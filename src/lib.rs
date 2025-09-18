@@ -1,5 +1,5 @@
 //! [![crates.io](https://img.shields.io/crates/v/docstr?style=flat-square&logo=rust)](https://crates.io/crates/docstr)
-//! [![docs.rs](https://img.shields.io/badge/docs.rs-auto__enums-blue?style=flat-square&logo=docs.rs)](https://docs.rs/docstr)
+//! [![docs.rs](https://img.shields.io/badge/docs.rs-docstr-blue?style=flat-square&logo=docs.rs)](https://docs.rs/docstr)
 //! [![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)](#license)
 //! [![msrv](https://img.shields.io/badge/msrv-1.56-blue?style=flat-square&logo=rust)](https://www.rust-lang.org)
 //! [![github](https://img.shields.io/github/stars/nik-rev/docstr)](https://github.com/nik-rev/docstr)
@@ -14,7 +14,7 @@
 //!
 //! # Usage
 //!
-//! It takes documentation comments as arguments and converts them into a `&'static str`
+//! [`docstr!`](crate::docstr) takes documentation comments as arguments and converts them into a string
 //!
 //! ```rust
 //! use docstr::docstr;
@@ -38,7 +38,7 @@
 //!
 //! # Macros
 //!
-//! `docstr!` can pass the generated string to any macro:
+//! [`docstr!`](crate::docstr) can pass the generated string to any macro:
 //!
 //! ```rust
 //! use docstr::docstr;
@@ -338,7 +338,7 @@ pub fn docstr(input: TokenStream) -> TokenStream {
 
     // The fully constructed string literal that we output
     //
-    // m!(
+    // docstr!(
     //     /// foo
     //     /// bar
     // )
@@ -371,7 +371,7 @@ pub fn docstr(input: TokenStream) -> TokenStream {
 
     // The following:
     //
-    // let a = m!(
+    // let a = docstr!(
     //     hello,
     //     /// foo
     //     /// bar
@@ -463,10 +463,10 @@ impl IntoIterator for CompileError {
     }
 }
 
-/// In the middle of `m!(...)` macro's invocation, we will always have doc comments.
+/// In the middle of `docstr!(...)` macro's invocation, we will always have doc comments.
 ///
 /// ```ignore
-/// m!(
+/// docstr!(
 ///     // DocComments::NotReached
 ///     but we can have tokens here
 ///     // DocComments::Inside
