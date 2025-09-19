@@ -16,3 +16,6 @@ litrs = "0.5"
 
 [lib]
 proc-macro = true
+
+[dev-dependencies]
+trybuild = "1.0"

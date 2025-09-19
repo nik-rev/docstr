@@ -1,0 +1,7 @@
+error: expected at least 1 documentation comment `/// ...`
+ --> tests/ui/empty.rs:2:5
+  |
+2 |     docstr::docstr!();
+  |     ^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)
