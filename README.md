@@ -70,7 +70,7 @@ assert_eq!(greeting, "Hello, my name is Bob.\nI am 21 years old!\n\nMy favorite 
 Injecting arguments before the generated string is also possible.
 
 ```rust
-docstr!(write! w,
+docstr!(write! w
    /// Hello, world!
 );
 ```
