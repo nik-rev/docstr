@@ -220,9 +220,6 @@ pub fn docstr(input: TokenStream) -> TokenStream {
             // this token is passed verbatim to the macro at the beginning,
             // before the doc comments
             tt if doc_comment_progress == DocCommentProgress::NotReached => {
-                // panic!("{tt:?}");
-                // this would be much less readable
-                #[allow(clippy::match_like_matches_macro)]
                 let insert_comma = match input.peek() {
                     Some(TokenTree::Punct(next_punct))
                          // If the doc comment starts soon and the current character is not
@@ -232,6 +229,8 @@ pub fn docstr(input: TokenStream) -> TokenStream {
                          //           ^ insert this comma
                          if *next_punct == '#' =>
                     {
+                        // this would be much less readable
+                        #[allow(clippy::match_like_matches_macro)]
                         match tt {
                             TokenTree::Punct(ref punct) if *punct == ',' => {
                                 false
