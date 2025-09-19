@@ -388,7 +388,8 @@ pub fn docstr(input: TokenStream) -> TokenStream {
     // The following:
     //
     // let a = docstr!(
-    //     hello,
+    //     format,
+    //     hello
     //     /// foo
     //     /// bar
     //     a,
@@ -413,15 +414,15 @@ pub fn docstr(input: TokenStream) -> TokenStream {
                 //         ^^^^^^^^^^^^^^^^^^^^^^^
                 TokenStream::from_iter(
                     // format!(hello, "foo\nbar", a, b)
-                    //         ^^^^^
+                    //         ^^^^^^
                     before
                         .into_iter()
                         .chain([
                             // format!(hello, "foo\nbar", a, b)
-                            //                ^^^^^^^^^
+                            //                ^^^^^^^^^^
                             TokenTree::Literal(Literal::string(&string)),
                             // format!(hello, "foo\nbar", a, b)
-                            //                         ^
+                            //                          ^
                             TokenTree::Punct(Punct::new(',', Spacing::Joint)),
                         ])
                         // format!(hello, "foo\nbar", a, b)
