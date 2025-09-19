@@ -9,7 +9,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! docstr = "0.2"
+//! docstr = "0.3"
 //! ```
 //!
 //! # Usage
@@ -36,7 +36,7 @@
 //! }"#)
 //! ```
 //!
-//! # Macros
+//! # Composition
 //!
 //! [`docstr!`](crate::docstr) can pass the generated string to any macro:
 //!
@@ -84,7 +84,7 @@
 
 use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
 
-/// Turns documentation comment into string at compile-time.
+/// Turns documentation comments into string at compile-time.
 ///
 /// ```rust
 /// use docstr::docstr;

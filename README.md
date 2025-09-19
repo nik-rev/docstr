@@ -13,7 +13,7 @@ It is an alternative to [`indoc`](https://docs.rs/indoc/latest/indoc/).
 
 ```toml
 [dependencies]
-docstr = "0.2"
+docstr = "0.3"
 ```
 
 ## Usage
@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 }"#)
 ```
 
-## Macros
+## Composition
 
 `docstr!` can pass the generated string to any macro:
 
