@@ -18,6 +18,25 @@ fn empty() {
     assert_eq!(A, "");
 }
 
+#[test]
+fn full_path() {
+    assert_eq!(
+        docstr!(std::format!
+            /// foo
+            /// bar
+        ),
+        "foo\nbar"
+    );
+    assert_eq!(
+        docstr!(std::concat!
+            /// foo
+            /// bar
+            "hello"
+        ),
+        "foo\nbarhello"
+    );
+}
+
 /// Works with constants
 #[test]
 fn constant() {
