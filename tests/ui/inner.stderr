@@ -1,0 +1,17 @@
+error: Inner doc comments `//! ...` are not supported. Please use `/// ...`
+ --> tests/ui/inner.rs:3:9
+  |
+3 |         //! this
+  |         ^^^^^^^^
+
+error: Inner doc comments `//! ...` are not supported. Please use `/// ...`
+ --> tests/ui/inner.rs:4:9
+  |
+4 |         //! is not
+  |         ^^^^^^^^^^
+
+error: Inner doc comments `//! ...` are not supported. Please use `/// ...`
+ --> tests/ui/inner.rs:5:9
+  |
+5 |         //! supported
+  |         ^^^^^^^^^^^^^

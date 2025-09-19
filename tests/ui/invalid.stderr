@@ -1,0 +1,111 @@
+error: expected `[...]`
+ --> tests/ui/invalid.rs:3:10
+  |
+3 |         #()
+  |          ^^
+
+error: expected at least 1 documentation comment `/// ...`
+ --> tests/ui/invalid.rs:2:5
+  |
+2 | /     docstr::docstr!(
+3 | |         #()
+4 | |     );
+  | |_____^
+  |
+  = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected `[...]`
+ --> tests/ui/invalid.rs:7:10
+  |
+7 |         #{}
+  |          ^^
+
+error: expected at least 1 documentation comment `/// ...`
+ --> tests/ui/invalid.rs:6:5
+  |
+6 | /     docstr::docstr!(
+7 | |         #{}
+8 | |     );
+  | |_____^
+  |
+  = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected `doc`
+  --> tests/ui/invalid.rs:11:11
+   |
+11 |         #[foo]
+   |           ^^^
+
+error: expected at least 1 documentation comment `/// ...`
+  --> tests/ui/invalid.rs:10:5
+   |
+10 | /     docstr::docstr!(
+11 | |         #[foo]
+12 | |     );
+   | |_____^
+   |
+   = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected `=`
+  --> tests/ui/invalid.rs:15:15
+   |
+15 |         #[doc ? ]
+   |               ^
+
+error: expected at least 1 documentation comment `/// ...`
+  --> tests/ui/invalid.rs:14:5
+   |
+14 | /     docstr::docstr!(
+15 | |         #[doc ? ]
+16 | |     );
+   | |_____^
+   |
+   = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: only string "..." or r"..." literals are supported
+  --> tests/ui/invalid.rs:19:17
+   |
+19 |         #[doc = true]
+   |                 ^^^^
+
+error: expected at least 1 documentation comment `/// ...`
+  --> tests/ui/invalid.rs:18:5
+   |
+18 | /     docstr::docstr!(
+19 | |         #[doc = true]
+20 | |     );
+   | |_____^
+   |
+   = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: only string "..." or r"..." literals are supported
+  --> tests/ui/invalid.rs:23:17
+   |
+23 |         #[doc = 100]
+   |                 ^^^
+
+error: expected at least 1 documentation comment `/// ...`
+  --> tests/ui/invalid.rs:22:5
+   |
+22 | /     docstr::docstr!(
+23 | |         #[doc = 100]
+24 | |     );
+   | |_____^
+   |
+   = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: only string "..." or r"..." literals are supported
+  --> tests/ui/invalid.rs:27:17
+   |
+27 |         #[doc = b"byte string"]
+   |                 ^^^^^^^^^^^^^^
+
+error: expected at least 1 documentation comment `/// ...`
+  --> tests/ui/invalid.rs:26:5
+   |
+26 | /     docstr::docstr!(
+27 | |         #[doc = b"byte string"]
+28 | |     );
+   | |_____^
+   |
+   = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)

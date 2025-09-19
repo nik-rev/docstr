@@ -1,0 +1,63 @@
+error: expected `#` to be followed by `[...]`
+ --> tests/ui/incomplete.rs:3:9
+  |
+3 |         #
+  |         ^
+
+error: expected at least 1 documentation comment `/// ...`
+ --> tests/ui/incomplete.rs:2:5
+  |
+2 | /     docstr::docstr!(
+3 | |         #
+4 | |     );
+  | |_____^
+  |
+  = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected `doc` after `[`
+ --> tests/ui/incomplete.rs:7:10
+  |
+7 |         #[]
+  |          ^
+
+error: expected at least 1 documentation comment `/// ...`
+ --> tests/ui/incomplete.rs:6:5
+  |
+6 | /     docstr::docstr!(
+7 | |         #[]
+8 | |     );
+  | |_____^
+  |
+  = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected `=` after `doc`
+  --> tests/ui/incomplete.rs:11:11
+   |
+11 |         #[doc]
+   |           ^^^
+
+error: expected at least 1 documentation comment `/// ...`
+  --> tests/ui/incomplete.rs:10:5
+   |
+10 | /     docstr::docstr!(
+11 | |         #[doc]
+12 | |     );
+   | |_____^
+   |
+   = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected string literal after `=`
+  --> tests/ui/incomplete.rs:15:15
+   |
+15 |         #[doc = ]
+   |               ^
+
+error: expected at least 1 documentation comment `/// ...`
+  --> tests/ui/incomplete.rs:14:5
+   |
+14 | /     docstr::docstr!(
+15 | |         #[doc = ]
+16 | |     );
+   | |_____^
+   |
+   = note: this error originates in the macro `docstr::docstr` (in Nightly builds, run with -Z macro-backtrace for more info)

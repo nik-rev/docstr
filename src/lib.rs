@@ -215,6 +215,17 @@ pub fn docstr(input: TokenStream) -> TokenStream {
                         unreachable!("if it's finished we would `continue` in an earlier arm")
                     }
                 }
+                match input.peek() {
+                    Some(TokenTree::Punct(punct)) if *punct == '!' => {
+                        compile_error(
+                            punct.span(),
+                            "Inner doc comments `//! ...` are not supported. Please use `/// ...`",
+                        );
+                        // eat '!'
+                        input.next();
+                    }
+                    _ => (),
+                }
                 punct.span()
             }
             // this token is passed verbatim to the macro at the beginning,
@@ -259,7 +270,11 @@ pub fn docstr(input: TokenStream) -> TokenStream {
         //  ^^^^^^^^^^^^^
         let doc_comment_square_brackets = match input.next() {
             Some(TokenTree::Group(group)) if group.delimiter() == Delimiter::Bracket => group,
-            _ => {
+            Some(tt) => {
+                compile_error(tt.span(), "expected `[...]`");
+                continue;
+            }
+            None => {
                 compile_error(
                     doc_comment_start_span,
                     "expected `#` to be followed by `[...]`",
@@ -290,10 +305,14 @@ pub fn docstr(input: TokenStream) -> TokenStream {
         //   ^^^
         let kw_doc_span = match doc_comment_attribute_inner.next() {
             Some(TokenTree::Ident(kw_doc)) if kw_doc.to_string() == "doc" => kw_doc.span(),
-            _ => {
+            Some(tt) => {
+                compile_error(tt.span(), "expected `doc`");
+                continue;
+            }
+            None => {
                 compile_error(
                     doc_comment_square_brackets.span_open(),
-                    "expected keyword `doc` after `[`",
+                    "expected `doc` after `[`",
                 );
                 continue;
             }
@@ -303,25 +322,35 @@ pub fn docstr(input: TokenStream) -> TokenStream {
         //       ^
         let punct_eq_span = match doc_comment_attribute_inner.next() {
             Some(TokenTree::Punct(eq)) if eq == '=' => eq.span(),
-            _ => {
-                compile_error(kw_doc_span, "expected keyword `doc` after `[`");
+            Some(tt) => {
+                compile_error(tt.span(), "expected `=`");
+                continue;
+            }
+            None => {
+                compile_error(kw_doc_span, "expected `=` after `doc`");
                 continue;
             }
         };
 
         // #[doc = "..."]
         //         ^^^^^
-        let Some(TokenTree::Literal(lit)) = doc_comment_attribute_inner.next() else {
+        let next = doc_comment_attribute_inner.next();
+        let Some(tt) = next else {
             compile_error(punct_eq_span, "expected string literal after `=`");
             continue;
         };
+        let span = tt.span();
 
         // #[doc = "..."]
         //          ^^^
-        let litrs::Literal::String(literal) = litrs::Literal::from(lit) else {
-            compile_error(punct_eq_span, "this literal is not supported");
+        let Ok(litrs::Literal::String(literal)) = litrs::Literal::try_from(tt) else {
+            compile_error(
+                span,
+                "only string \"...\" or r\"...\" literals are supported",
+            );
             continue;
         };
+
         let literal = literal.value();
 
         // Reached contents of the doc comment
@@ -343,12 +372,10 @@ pub fn docstr(input: TokenStream) -> TokenStream {
     }
 
     if doc_comments.is_empty() {
-        return CompileError::new(
+        compile_error(
             Span::call_site(),
             "expected at least 1 documentation comment `/// ...`",
-        )
-        .into_iter()
-        .collect();
+        );
     }
 
     // The fully constructed string literal that we output
@@ -371,7 +398,7 @@ pub fn docstr(input: TokenStream) -> TokenStream {
         .unwrap_or_default();
 
     let Some(macro_) = macro_ else {
-        if !after.is_empty() || !after.is_empty() {
+        if !before.is_empty() || !after.is_empty() {
             compile_error(
                 Span::call_site(),
                 concat!(
@@ -380,9 +407,18 @@ pub fn docstr(input: TokenStream) -> TokenStream {
                 ),
             );
         }
+
+        if !compile_errors.is_empty() {
+            return compile_errors;
+        }
+
         // Just a plain string literal
         return TokenTree::Literal(Literal::string(&string)).into();
     };
+
+    if !compile_errors.is_empty() {
+        return compile_errors;
+    }
 
     // The following:
     //
