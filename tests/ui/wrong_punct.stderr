@@ -1,0 +1,31 @@
+error: replace with `!` to pass the macro: `writeln!`
+ --> tests/ui/wrong_punct.rs:3:28
+  |
+3 |     docstr::docstr!(writeln,
+  |                            ^
+
+error: expected `,` after this
+  --> tests/ui/wrong_punct.rs:12:9
+   |
+12 |         s
+   |         ^
+
+error: 2 identifiers in a row is not a valid macro path
+
+       did you mean one of:
+       - `writeln::s`
+       - `writeln! s`
+  --> tests/ui/wrong_punct.rs:20:9
+   |
+20 |         s
+   |         ^
+
+error: 2 identifiers in a row is not a valid macro path
+
+       did you mean one of:
+       - `writeln::s`
+       - `writeln! s`
+  --> tests/ui/wrong_punct.rs:28:9
+   |
+28 |         s,
+   |         ^

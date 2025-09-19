@@ -9,7 +9,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! docstr = "0.3"
+//! docstr = "0.4"
 //! ```
 //!
 //! # Usage
@@ -47,9 +47,9 @@
 //! let name = "Bob";
 //! let colors = ["red", "green", "blue"];
 //!
-//! let greeting: String = docstr!(format
-//!                              //^^^^^^ the generated string is passed to `format!`
-//!                              //       as the 1st argument
+//! let greeting: String = docstr!(format!
+//!                              //^^^^^^^ the generated string is passed to `format!`
+//!                              //        as the 1st argument
 //!     /// Hello, my name is {name}.
 //!     /// I am {age} years old!
 //!     ///
@@ -69,7 +69,7 @@
 //! # let mut w = String::new();
 //! # use std::fmt::Write as _;
 //! # use docstr::docstr;
-//! docstr!(write, w
+//! docstr!(write! w,
 //!    /// Hello, world!
 //! );
 //! ```
@@ -89,11 +89,12 @@ use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenSt
 /// ```rust
 /// use docstr::docstr;
 ///
-/// let hello_world: String = docstr!(format
+/// let hello_world: String = docstr!(format!
 ///     /// fn say_hi() {{
 ///     ///     println!("Hello, my name is {}");
 ///     /// }}
-/// "Bob");
+///     "Bob"
+/// );
 ///
 /// assert_eq!(hello_world, r#"fn say_hi() {
 ///     println!("Hello, my name is Bob");
@@ -113,6 +114,15 @@ use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenSt
 pub fn docstr(input: TokenStream) -> TokenStream {
     let mut input = input.into_iter().peekable();
 
+    // If we encounter any errors, we collect them into here
+    // and report them all at once
+    //
+    // compile_error!("you have done horrible things!")
+    let mut compile_errors = TokenStream::new();
+    let mut compile_error = |span: Span, message: &str| {
+        compile_errors.extend(CompileError::new(span, message));
+    };
+
     // Path to the macro that we send tokens to.
     //
     // If this is `None`, this macro produces a string literal
@@ -123,26 +133,75 @@ pub fn docstr(input: TokenStream) -> TokenStream {
         }
         // Ok, this is a path to a macro.
         Some(_) => {
-            let mut path = TokenStream::new();
-            while let Some(tt) = input.next_if(|next| {
-                if let TokenTree::Punct(punct) = next {
-                    // Once we hit a '#', stop
-                    //
-                    // '#' marks the beginning of a doc comment
-                    *punct != '#'
-                } else {
-                    true
-                }
-            }) {
+            let mut macro_ = TokenStream::new();
+            // for better error messages
+            let mut last_is_ident = false;
+
+            // on the first compile error we stop trying to process the path because it won't
+            // make any sense after that
+            loop {
+                let tt = input.next();
                 match tt {
-                    TokenTree::Punct(punct) if punct == ',' => {
-                        // do not add comma to part of the path
+                    // std::format!
+                    //            ^
+                    Some(TokenTree::Punct(exclamation)) if exclamation == '!' => {
+                        macro_.extend([TokenTree::Punct(exclamation)]);
+                        // end of the macro
                         break;
                     }
-                    _ => path.extend([tt]),
+                    // std::format!
+                    //    ^
+                    //     ^
+                    Some(TokenTree::Punct(colon)) if colon == ':' => {
+                        last_is_ident = false;
+                        macro_.extend([TokenTree::Punct(colon)]);
+                    }
+                    // std::format!
+                    // ^^^
+                    //      ^^^^^^
+                    Some(TokenTree::Ident(ident)) => {
+                        if last_is_ident {
+                            compile_error(ident.span(), &format!("2 identifiers in a row is not a valid macro path\n\ndid you mean one of:\n- `{macro_}::{ident}`\n- `{macro_}! {ident}`"));
+                            macro_ = TokenStream::new();
+                            break;
+                        }
+
+                        last_is_ident = true;
+                        macro_.extend([TokenTree::Ident(ident)]);
+                    }
+                    Some(TokenTree::Punct(comma)) if comma == ',' => {
+                        compile_error(
+                            comma.span(),
+                            &format!("replace with `!` to pass the macro: `{macro_}!`",),
+                        );
+                        macro_ = TokenStream::new();
+                        break;
+                    }
+                    _ => {
+                        let span = tt.map(|tt| tt.span()).unwrap_or_else(|| {
+                            macro_
+                                .clone()
+                                .into_iter()
+                                .last()
+                                .map(|last| last.span())
+                                .unwrap_or_else(Span::call_site)
+                        });
+                        compile_error(
+                            span,
+                            concat!(
+                                "expected path ",
+                                "to macro like: `std::format!`\n\nnote: ",
+                                "macro path is optional and can be omitted ",
+                                "to produce a `&'static str`"
+                            ),
+                        );
+                        macro_ = TokenStream::new();
+                        break;
+                    }
                 }
             }
-            Some(path)
+
+            Some(macro_)
         }
         // Macro input is totally empty - just expand to an empty string
         None => {
@@ -155,17 +214,8 @@ pub fn docstr(input: TokenStream) -> TokenStream {
         }
     };
 
-    // If we encounter any errors, we collect them into here
-    // and report them all at once
-    //
-    // compile_error!("you have done horrible things!")
-    let mut compile_errors = TokenStream::new();
-    let mut compile_error = |span: Span, message: &str| {
-        compile_errors.extend(CompileError::new(span, message));
-    };
-
     // Tokens BEFORE the doc comments, which are appended
-    // directly to the `macr` we just got
+    // directly to the `macro_` we just got
     let mut before = TokenStream::new();
 
     // Contents of the doc comments which we collect
@@ -231,32 +281,25 @@ pub fn docstr(input: TokenStream) -> TokenStream {
             // this token is passed verbatim to the macro at the beginning,
             // before the doc comments
             tt if doc_comment_progress == DocCommentProgress::NotReached => {
-                let insert_comma = match input.peek() {
-                    Some(TokenTree::Punct(next_punct))
-                         // If the doc comment starts soon and the current character is not
-                         // a comma, then let's just insert a comma
-                         //
-                         // writeln!(x, "foo")
-                         //           ^ insert this comma
-                         if *next_punct == '#' =>
-                    {
-                        // this would be much less readable
-                        #[allow(clippy::match_like_matches_macro)]
-                        match tt {
-                            TokenTree::Punct(ref punct) if *punct == ',' => {
-                                false
-                            }
-                            _ => true
-                        }
-                    }
-                    _ => false,
-                };
-
+                let is_current_comma =
+                    matches!(tt, TokenTree::Punct(ref punct_1) if *punct_1 == ',');
+                let current_span = tt.span();
                 before.extend([tt]);
 
-                if insert_comma {
-                    // Add a comma after `before`, because that's not a required part of the syntax
-                    before.extend([TokenTree::Punct(Punct::new(',', Spacing::Alone))]);
+                // Not `,` followed by `#` is a syntax error
+                //
+                // docstr!(write! foo
+                //                // ^ missing `,` here
+                //     /// hello world
+                // )
+                match input.peek() {
+                    Some(TokenTree::Punct(next)) if !is_current_comma && *next == '#' => {
+                        compile_error(current_span, "expected `,` after this");
+
+                        // Recover from the error so we can collect more errors
+                        before.extend([TokenTree::Punct(Punct::new(',', Spacing::Joint))]);
+                    }
+                    _ => (),
                 }
 
                 continue;
@@ -436,36 +479,31 @@ pub fn docstr(input: TokenStream) -> TokenStream {
     // let a = format!(hello, "foo\nbar", a, b);
     TokenStream::from_iter(
         // format!(hello, "foo\nbar", a, b)
-        // ^^^^^^
-        macro_.into_iter().chain([
+        // ^^^^^^^
+        macro_.into_iter().chain([TokenTree::Group(Group::new(
             // format!(hello, "foo\nbar", a, b)
-            //       ^
-            TokenTree::Punct(Punct::new('!', Spacing::Joint)),
-            TokenTree::Group(Group::new(
+            //        ^                      ^
+            Delimiter::Parenthesis,
+            // format!(hello, "foo\nbar", a, b)
+            //         ^^^^^^^^^^^^^^^^^^^^^^^
+            TokenStream::from_iter(
                 // format!(hello, "foo\nbar", a, b)
-                //        ^                      ^
-                Delimiter::Parenthesis,
-                // format!(hello, "foo\nbar", a, b)
-                //         ^^^^^^^^^^^^^^^^^^^^^^^
-                TokenStream::from_iter(
-                    // format!(hello, "foo\nbar", a, b)
-                    //         ^^^^^^
-                    before
-                        .into_iter()
-                        .chain([
-                            // format!(hello, "foo\nbar", a, b)
-                            //                ^^^^^^^^^^
-                            TokenTree::Literal(Literal::string(&string)),
-                            // format!(hello, "foo\nbar", a, b)
-                            //                          ^
-                            TokenTree::Punct(Punct::new(',', Spacing::Joint)),
-                        ])
+                //         ^^^^^^
+                before
+                    .into_iter()
+                    .chain([
                         // format!(hello, "foo\nbar", a, b)
-                        //                            ^^^^
-                        .chain(after),
-                ),
-            )),
-        ]),
+                        //                ^^^^^^^^^^
+                        TokenTree::Literal(Literal::string(&string)),
+                        // format!(hello, "foo\nbar", a, b)
+                        //                          ^
+                        TokenTree::Punct(Punct::new(',', Spacing::Joint)),
+                    ])
+                    // format!(hello, "foo\nbar", a, b)
+                    //                            ^^^^
+                    .chain(after),
+            ),
+        ))]),
     )
 }
 

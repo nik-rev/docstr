@@ -1,7 +1,7 @@
 fn main() {
     docstr::docstr!(
         //! this
-        //! is not
+        /// is not
         //! supported
     );
 }

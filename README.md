@@ -13,7 +13,7 @@ It is an alternative to [`indoc`](https://docs.rs/indoc/latest/indoc/).
 
 ```toml
 [dependencies]
-docstr = "0.3"
+docstr = "0.4"
 ```
 
 ## Usage
@@ -51,9 +51,9 @@ let age = 21;
 let name = "Bob";
 let colors = ["red", "green", "blue"];
 
-let greeting: String = docstr!(format
-                             //^^^^^^ the generated string is passed to `format!`
-                             //       as the 1st argument
+let greeting: String = docstr!(format!
+                             //^^^^^^^ the generated string is passed to `format!`
+                             //        as the 1st argument
     /// Hello, my name is {name}.
     /// I am {age} years old!
     ///
@@ -70,7 +70,7 @@ assert_eq!(greeting, "Hello, my name is Bob.\nI am 21 years old!\n\nMy favorite 
 Injecting arguments before the generated string is also possible.
 
 ```rust
-docstr!(write, w
+docstr!(write! w,
    /// Hello, world!
 );
 ```

@@ -41,10 +41,11 @@ fn constant() {
 #[test]
 fn format() {
     assert_eq!(
-        docstr!(format
-                /// Hello, my name is {}
-                /// and I am {AGE} years old
-            "Bob"),
+        docstr!(format!
+            /// Hello, my name is {}
+            /// and I am {AGE} years old
+            "Bob"
+        ),
         format!("Hello, my name is Bob\nand I am {AGE} years old")
     );
 }
@@ -64,26 +65,14 @@ fn fake_interpolation() {
 #[test]
 fn formatln() {
     macro_rules! formatln {
-            ($($tt:tt)*) => {
-                format!($($tt)*) + "\n"
-            };
-        }
+        ($($tt:tt)*) => {
+            format!($($tt)*) + "\n"
+        };
+    }
 
     assert_eq!(
         docstr!(
-            formatln
-            /// Hello, my name is {}
-            /// and I am {AGE} years old
-            "Bob"
-        ),
-        format!("Hello, my name is Bob\nand I am {AGE} years old\n")
-    );
-
-    // same, but comma after `formatln`
-
-    assert_eq!(
-        docstr!(
-            formatln,
+            formatln!
             /// Hello, my name is {}
             /// and I am {AGE} years old
             "Bob"
@@ -97,8 +86,8 @@ fn formatln() {
 fn writeln() {
     use std::fmt::Write as _;
     let mut s = String::new();
-    docstr!(
-        writeln, s
+    docstr!(writeln!
+        s,
         /// hello
         /// {}
         "world"
@@ -110,8 +99,8 @@ fn writeln() {
     // Same, but a comma after `s`
 
     let mut s = String::new();
-    docstr!(
-        writeln, s,
+    docstr!(writeln!
+        s,
         /// hello
         /// {}
         "world"
