@@ -28,7 +28,7 @@ fn full_path() {
         "foo\nbar"
     );
     assert_eq!(
-        docstr!(std::concat!
+        docstr!(::std::concat!
             /// foo
             /// bar
             "hello"
