@@ -1,3 +1,14 @@
+# v0.4.1
+
+The comma between the last argument before the first doc comment, and the doc comment itself is now optional
+
+```rs
+docstr!(write! w,
+      //        ^ this comma was required, but now it is optional
+  /// Hello, world!
+);
+```
+
 # v0.4.0
 
 This release includes more improvement to the error messages, plus a few syntactic changes to make the macro more readable.

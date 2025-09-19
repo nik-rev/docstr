@@ -69,7 +69,7 @@
 //! # let mut w = String::new();
 //! # use std::fmt::Write as _;
 //! # use docstr::docstr;
-//! docstr!(write! w,
+//! docstr!(write! w
 //!    /// Hello, world!
 //! );
 //! ```
@@ -281,25 +281,26 @@ pub fn docstr(input: TokenStream) -> TokenStream {
             // this token is passed verbatim to the macro at the beginning,
             // before the doc comments
             tt if doc_comment_progress == DocCommentProgress::NotReached => {
-                let is_current_comma =
-                    matches!(tt, TokenTree::Punct(ref punct_1) if *punct_1 == ',');
-                let current_span = tt.span();
+                // Comma before '#' is optional
+                //
+                // docstr!(writeln! w,
+                //                   ^ this comma can be omitted
+                //     #[doc = "..."]
+                //     ^ next token
+                // )
+                let insert_comma = match input.peek() {
+                    Some(TokenTree::Punct(next)) => match &tt {
+                        TokenTree::Punct(current) if *current == ',' && *next == '#' => false,
+                        _ if *next == '#' => true,
+                        _ => false,
+                    },
+                    _ => false,
+                };
+
                 before.extend([tt]);
 
-                // Not `,` followed by `#` is a syntax error
-                //
-                // docstr!(write! foo
-                //                // ^ missing `,` here
-                //     /// hello world
-                // )
-                match input.peek() {
-                    Some(TokenTree::Punct(next)) if !is_current_comma && *next == '#' => {
-                        compile_error(current_span, "expected `,` after this");
-
-                        // Recover from the error so we can collect more errors
-                        before.extend([TokenTree::Punct(Punct::new(',', Spacing::Joint))]);
-                    }
-                    _ => (),
+                if insert_comma {
+                    before.extend([TokenTree::Punct(Punct::new(',', Spacing::Joint))]);
                 }
 
                 continue;

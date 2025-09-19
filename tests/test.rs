@@ -103,30 +103,30 @@ fn formatln() {
 /// Accepts arguments before the string
 #[test]
 fn writeln() {
+    let name = "dave";
+
     use std::fmt::Write as _;
     let mut s = String::new();
-    docstr!(writeln!
-        s,
+
+    docstr!(writeln! s
         /// hello
-        /// {}
-        "world"
+        /// {name}
     )
     .unwrap();
 
-    assert_eq!(s, "hello\nworld\n");
+    assert_eq!(s, "hello\ndave\n");
 
     // Same, but a comma after `s`
 
     let mut s = String::new();
-    docstr!(writeln!
-        s,
+    docstr!(writeln! s,
         /// hello
-        /// {}
-        "world"
+        /// {} {}
+        name, name
     )
     .unwrap();
 
-    assert_eq!(s, "hello\nworld\n");
+    assert_eq!(s, "hello\ndave dave\n");
 }
 
 #[test]
