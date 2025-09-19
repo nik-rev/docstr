@@ -1,3 +1,7 @@
+# v0.4.2
+
+Documentation improvements
+
 # v0.4.1
 
 The comma between the last argument before the first doc comment, and the doc comment itself is now optional
