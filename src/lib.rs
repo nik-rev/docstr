@@ -12,7 +12,7 @@
 //! docstr = "0.4"
 //! ```
 //!
-//! Note: `docstr` does not have any dependencies such as `syn` or `quote`, so compile-speeds will be very fast.
+//! Note: `docstr` does not have any dependencies such as `syn` or `quote`, so compile-speeds are very fast.
 //!
 //! # Usage
 //!
