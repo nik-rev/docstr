@@ -12,6 +12,8 @@
 //! docstr = "0.4"
 //! ```
 //!
+//! Note: `docstr` does not have any dependencies such as `syn` or `quote`, so compile-speeds will be very fast.
+//!
 //! # Usage
 //!
 //! [`docstr!`](crate::docstr) takes documentation comments as arguments and converts them into a string
