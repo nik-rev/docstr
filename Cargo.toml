@@ -7,7 +7,7 @@ rust-version = "1.65"
 authors = ["Nik Revenco <pm@nikrev.com>"]
 repository = "https://github.com/nik-rev/docstr"
 keywords = ["heredoc", "multiline", "string", "literal", "indoc"]
-categories = ["data-structures", "text-processing", "no-std", "no-std::no-alloc"]
+categories = ["data-structures", "text-processing", "no-std", "no-std::no-alloc", "development-tools"]
 license = "MIT OR Apache-2.0"
 
 [dependencies]
