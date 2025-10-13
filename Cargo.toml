@@ -1,6 +1,6 @@
 [package]
 name = "docstr"
-version = "0.4.4"
+version = "0.4.5"
 edition = "2021"
 description = "Ergonomic multi-line string literals"
 rust-version = "1.65"
