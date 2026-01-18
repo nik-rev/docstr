@@ -48,9 +48,9 @@ docstr!(write! w,
 
 [v0.4.0]: https://github.com/nik-rev/docstr/compare/v0.3.0...v0.4.0
 
-### Changed
-
 This release includes more improvement to the error messages, plus a few syntactic changes to make the macro more readable.
+
+### Changed
 
 - The passed macro path must always be followed by a `!`
 
