@@ -104,7 +104,3 @@ This release includes more improvement to the error messages, plus a few syntact
 ## [v0.1.1] - 2025-09-19
 
 [v0.1.1]: https://github.com/nik-rev/docstr/compare/v0.1.0...v0.1.1
-
-## [v0.1.0] - 2025-09-18
-
-[v0.1.0]: https://github.com/nik-rev/docstr/releases/v0.1.0
