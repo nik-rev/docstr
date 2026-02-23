@@ -1,0 +1,26 @@
+pre-release-hook = ["cargo", "+nightly", "reedme"]
+pre-release-replacements = [
+  {
+    file = "CHANGELOG.md",
+    search = "^\\[Unreleased\\]",
+    replace = "[v{{version}}]",
+    exactly = 1
+  },
+  {
+    file = "CHANGELOG.md",
+    search = "\\.\\.\\.HEAD",
+    replace = "...{{tag_name}}",
+    exactly = 1
+  },
+  {
+    file = "CHANGELOG.md",
+    search = "## \\[Unreleased\\]",
+    replace = """
+## [Unreleased]
+
+[Unreleased]: {{repository}}/compare/{{tag_name}}...HEAD
+
+## [v{{version}}] - {{date}}""",
+    exactly = 1
+  },
+]
