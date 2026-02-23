@@ -46,6 +46,15 @@ jobs:
 
       - run: cargo fmt --all --check
 
+  cargo-reedme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - run: cargo install --locked cargo-reedme
+      - run: cargo-reedme --check
+
   cargo-test:
     runs-on: ${{ matrix.os }}
     strategy:
