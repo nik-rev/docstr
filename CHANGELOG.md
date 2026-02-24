@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]: https://github.com/nik-rev/docstr/compare/v0.4.7...HEAD
 
+- Documentation improvements
+
 ## [v0.4.7] - 2025-10-13
 
 [v0.4.7]: https://github.com/nik-rev/docstr/compare/v0.4.6...v0.4.7

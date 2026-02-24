@@ -1,9 +1,9 @@
-#![doc = nik_rev::badges!(repo = "docstr")]
+#![doc = include_str!(concat!(env!("OUT_DIR"), "/GENERATED_BADGES"))]
 //!
 //! This crate provides a procedural macro for ergonomically creating multi-line string literals.
 //! It is an alternative to [`indoc`](https://docs.rs/indoc/latest/indoc/).
 //!
-#![doc = nik_rev::add_dependency!()]
+#![doc = include_str!(concat!(env!("OUT_DIR"), "/GENERATED_ADD_DEP"))]
 //!
 //! Note: `docstr` does not have any dependencies such as `syn` or `quote`, so compile-speeds are very fast.
 //!
