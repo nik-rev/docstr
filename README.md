@@ -32,7 +32,7 @@ Note: `docstr` does not have any dependencies such as `syn` or `quote`, so compi
 
 # Usage
 
-[`docstr!`](https://docs.rs/docstr/0.4.7/docstr/macro.docstr.html) takes documentation comments as arguments and converts them into a string
+[`docstr!`](https://docs.rs/docstr/0.4.8/docstr/macro.docstr.html) takes documentation comments as arguments and converts them into a string
 
 ```rust
 use docstr::docstr;
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 
 # Composition
 
-[`docstr!`](https://docs.rs/docstr/0.4.7/docstr/macro.docstr.html) can pass the generated string to any macro:
+[`docstr!`](https://docs.rs/docstr/0.4.8/docstr/macro.docstr.html) can pass the generated string to any macro:
 
 ```rust
 use docstr::docstr;

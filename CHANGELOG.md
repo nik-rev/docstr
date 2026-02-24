@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/nik-rev/docstr/compare/v0.4.7...HEAD
+[Unreleased]: https://github.com/nik-rev/docstr/compare/v0.4.8...HEAD
+
+## [v0.4.8] - 2026-02-24
+
+[v0.4.8]: https://github.com/nik-rev/docstr/compare/v0.4.7...v0.4.8
 
 - Documentation improvements
 
