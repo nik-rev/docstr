@@ -1,4 +1,4 @@
-pre-release-hook = ["cargo", "+nightly", "reedme"]
+pre-release-hook = ["cargo", "reedme"]
 pre-release-replacements = [
   {
     file = "CHANGELOG.md",
