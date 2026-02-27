@@ -7,7 +7,6 @@ name = "docstr"
 version = "0.4.8"
 dependencies = [
  "litrs",
- "nik-rev",
  "trybuild",
 ]
 
@@ -56,12 +55,6 @@ name = "memchr"
 version = "2.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
-
-[[package]]
-name = "nik-rev"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76018729da4fc1da86828e3e0f56f4b4fbf8da1aa42dc50ad1d00de5bdb419d3"
 
 [[package]]
 name = "proc-macro2"

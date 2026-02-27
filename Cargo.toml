@@ -19,6 +19,3 @@ proc-macro = true
 
 [dev-dependencies]
 trybuild = "1.0"
-
-[build-dependencies]
-nik-rev = "0.1.7"

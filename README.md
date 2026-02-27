@@ -30,7 +30,7 @@ docstr = "0.4"
 
 Note: `docstr` does not have any dependencies such as `syn` or `quote`, so compile-speeds are very fast.
 
-# Usage
+## Usage
 
 [`docstr!`](https://docs.rs/docstr/0.4.8/docstr/macro.docstr.html) takes documentation comments as arguments and converts them into a string
 
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 }"#)
 ```
 
-# Composition
+## Composition
 
 [`docstr!`](https://docs.rs/docstr/0.4.8/docstr/macro.docstr.html) can pass the generated string to any macro:
 

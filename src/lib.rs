@@ -1,9 +1,15 @@
-#![doc = include_str!(concat!(env!("OUT_DIR"), "/GENERATED_BADGES"))]
+#![doc = concat!("[![crates.io](https://img.shields.io/crates/v/", env!("CARGO_PKG_NAME"), "?style=flat-square&logo=rust)](https://crates.io/crates/", env!("CARGO_PKG_NAME"), ")")]
+#![doc = concat!("[![docs.rs](https://img.shields.io/docsrs/", env!("CARGO_PKG_NAME"), "?style=flat-square&logo=docs.rs)](https://docs.rs/", env!("CARGO_PKG_NAME"), ")")]
+#![doc = "![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)"]
+#![doc = concat!("![msrv](https://img.shields.io/badge/msrv-", env!("CARGO_PKG_RUST_VERSION"), "-blue?style=flat-square&logo=rust)")]
+#![doc = concat!("[![github](https://img.shields.io/github/stars/nik-rev/", env!("CARGO_PKG_NAME"), ")](https://github.com/nik-rev/", env!("CARGO_PKG_NAME"), ")")]
 //!
 //! This crate provides a procedural macro for ergonomically creating multi-line string literals.
 //! It is an alternative to [`indoc`](https://docs.rs/indoc/latest/indoc/).
 //!
-#![doc = include_str!(concat!(env!("OUT_DIR"), "/GENERATED_ADD_DEP"))]
+//! ```toml
+#![doc = concat!(env!("CARGO_PKG_NAME"), " = ", "\"", env!("CARGO_PKG_VERSION_MAJOR"), ".", env!("CARGO_PKG_VERSION_MINOR"), "\"")]
+//! ```
 //!
 //! Note: `docstr` does not have any dependencies such as `syn` or `quote`, so compile-speeds are very fast.
 //!
