@@ -1,4 +1,4 @@
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
  --> tests/ui/empty.rs:2:5
   |
 2 |     docstr::docstr!();

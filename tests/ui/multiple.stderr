@@ -1,0 +1,11 @@
+error: only string "..." or r"..." literals are supported
+ --> tests/ui/multiple.rs:3:17
+  |
+3 |         #[doc = 4]
+  |                 ^
+
+error: only string "..." or r"..." literals are supported
+ --> tests/ui/multiple.rs:5:17
+  |
+5 |         #[doc = false]
+  |                 ^^^^^

@@ -4,7 +4,7 @@ error: expected `[...]`
 3 |         #()
   |          ^^
 
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
  --> tests/ui/invalid.rs:2:5
   |
 2 | /     docstr::docstr!(
@@ -20,7 +20,7 @@ error: expected `[...]`
 7 |         #{}
   |          ^^
 
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
  --> tests/ui/invalid.rs:6:5
   |
 6 | /     docstr::docstr!(
@@ -36,7 +36,7 @@ error: expected `doc`
 11 |         #[foo]
    |           ^^^
 
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
   --> tests/ui/invalid.rs:10:5
    |
 10 | /     docstr::docstr!(
@@ -52,7 +52,7 @@ error: expected `=`
 15 |         #[doc ? ]
    |               ^
 
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
   --> tests/ui/invalid.rs:14:5
    |
 14 | /     docstr::docstr!(
@@ -68,7 +68,7 @@ error: only string "..." or r"..." literals are supported
 19 |         #[doc = true]
    |                 ^^^^
 
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
   --> tests/ui/invalid.rs:18:5
    |
 18 | /     docstr::docstr!(
@@ -84,7 +84,7 @@ error: only string "..." or r"..." literals are supported
 23 |         #[doc = 100]
    |                 ^^^
 
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
   --> tests/ui/invalid.rs:22:5
    |
 22 | /     docstr::docstr!(
@@ -100,7 +100,7 @@ error: only string "..." or r"..." literals are supported
 27 |         #[doc = b"byte string"]
    |                 ^^^^^^^^^^^^^^
 
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
   --> tests/ui/invalid.rs:26:5
    |
 26 | /     docstr::docstr!(

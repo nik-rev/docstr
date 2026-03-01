@@ -4,7 +4,7 @@ error: expected `#` to be followed by `[...]`
 3 |         #
   |         ^
 
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
  --> tests/ui/incomplete.rs:2:5
   |
 2 | /     docstr::docstr!(
@@ -20,7 +20,7 @@ error: expected `doc` after `[`
 7 |         #[]
   |          ^
 
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
  --> tests/ui/incomplete.rs:6:5
   |
 6 | /     docstr::docstr!(
@@ -36,7 +36,7 @@ error: expected `=` after `doc`
 11 |         #[doc]
    |           ^^^
 
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
   --> tests/ui/incomplete.rs:10:5
    |
 10 | /     docstr::docstr!(
@@ -52,7 +52,7 @@ error: expected string literal after `=`
 15 |         #[doc = ]
    |               ^
 
-error: expected at least 1 documentation comment `/// ...`
+error: requires at least a documentation comment argument: `/// ...`
   --> tests/ui/incomplete.rs:14:5
    |
 14 | /     docstr::docstr!(

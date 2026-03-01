@@ -135,98 +135,52 @@ pub fn docstr(input: TokenStream) -> TokenStream {
 
     // Path to the macro that we send tokens to.
     //
-    // If this is `None`, this macro produces a string literal
-    let macro_ = match input.peek() {
-        Some(TokenTree::Punct(punct)) if *punct == '#' => {
-            // No macro, this will directly produce a string literal
-            None
-        }
-        // Ok, this is a path to a macro.
-        Some(_) => {
-            let mut macro_ = TokenStream::new();
-            // for better error messages
-            let mut last_is_ident = false;
-
-            // on the first compile error we stop trying to process the path because it won't
-            // make any sense after that
-            loop {
-                let tt = input.next();
-                match tt {
-                    // std::format!
-                    //            ^
-                    Some(TokenTree::Punct(exclamation)) if exclamation == '!' => {
-                        macro_.extend([TokenTree::Punct(exclamation)]);
-                        // end of the macro
-                        break;
-                    }
-                    // std::format!
-                    //    ^
-                    //     ^
-                    Some(TokenTree::Punct(colon)) if colon == ':' => {
-                        last_is_ident = false;
-                        macro_.extend([TokenTree::Punct(colon)]);
-                    }
-                    // std::format!
-                    // ^^^
-                    //      ^^^^^^
-                    Some(TokenTree::Ident(ident)) => {
-                        if last_is_ident {
-                            compile_error(ident.span(), &format!("2 identifiers in a row is not a valid macro path\n\ndid you mean one of:\n- `{macro_}::{ident}`\n- `{macro_}! {ident}`"));
-                            macro_ = TokenStream::new();
-                            break;
-                        }
-
-                        last_is_ident = true;
-                        macro_.extend([TokenTree::Ident(ident)]);
-                    }
-                    Some(TokenTree::Punct(comma)) if comma == ',' => {
-                        compile_error(
-                            comma.span(),
-                            &format!("replace with `!` to pass the macro: `{macro_}!`",),
-                        );
-                        macro_ = TokenStream::new();
-                        break;
-                    }
-                    _ => {
-                        let span = tt.map(|tt| tt.span()).unwrap_or_else(|| {
-                            macro_
-                                .clone()
-                                .into_iter()
-                                .last()
-                                .map(|last| last.span())
-                                .unwrap_or_else(Span::call_site)
-                        });
-                        compile_error(
-                            span,
-                            concat!(
-                                "expected path ",
-                                "to macro like: `std::format!`\n\nnote: ",
-                                "macro path is optional and can be omitted ",
-                                "to produce a `&'static str`"
-                            ),
-                        );
-                        macro_ = TokenStream::new();
-                        break;
-                    }
-                }
-            }
-
-            Some(macro_)
-        }
-        // Macro input is totally empty - just expand to an empty string
+    // If this is `None`, we don't forward the path to any macro,
+    // and docstr! produces a string literal of type &'static str
+    //
+    // docstr!(
+    //     /// hello world
+    // )
+    // => "hello world"
+    //
+    // docstr!(format!
+    //     /// hello {world}
+    // )
+    // => format!("hello {world}")
+    let macro_path = match input.peek() {
+        // No macro path, this will directly produce a string literal
+        //
+        // docstr!(
+        //     /// hello world
+        // )
+        Some(TokenTree::Punct(punct)) if *punct == '#' => None,
+        // Macro input is completely empty
+        //
+        // docstr!()
         None => {
             return CompileError::new(
                 Span::call_site(),
-                "expected at least 1 documentation comment `/// ...`",
+                "requires at least a documentation comment argument: `/// ...`",
             )
-            .into_iter()
-            .collect()
+            .into()
+        }
+        // Path to a macro.
+        //
+        // docstr!(format!
+        //     /// hello {world}
+        // )
+        Some(_) => {
+            // Contains tokens of the macro, e.g. `std::format!`
+            match extract_macro_path(&mut input) {
+                Ok(macro_path) => macro_path,
+                Err(compile_error) => return compile_error.into(),
+            }
         }
     };
 
     // Tokens BEFORE the doc comments, which are appended
-    // directly to the `macro_` we just got
-    let mut before = TokenStream::new();
+    // directly to the `macro_path` we just got - before the `doc_comments`
+    let mut tokens_before_doc_comments = TokenStream::new();
 
     // Contents of the doc comments which we collect
     //
@@ -244,8 +198,31 @@ pub fn docstr(input: TokenStream) -> TokenStream {
     let mut doc_comments = Vec::new();
 
     // Tokens AFTER the doc comments, which are appended
-    // directly to the `macr` we just got
-    let mut after = TokenStream::new();
+    // directly to the `macro_path` we just got - after the `doc_comments`
+    let mut tokens_after_doc_comments = TokenStream::new();
+
+    /// In the middle of `docstr!(...)` macro's invocation, we will always have doc comments.
+    ///
+    /// ```ignore
+    /// docstr!(
+    ///     // DocComments::NotReached
+    ///     but we can have tokens here
+    ///     // DocComments::Inside
+    ///     /// foo
+    ///     /// bar
+    ///     // DocComments::Finished
+    ///     and here too
+    /// )
+    /// ```
+    #[derive(Eq, PartialEq, PartialOrd, Ord)]
+    enum DocCommentProgress {
+        /// doc comments `///` not reached yet
+        NotReached,
+        /// currently we are INSIDE the doc comments
+        Inside,
+        /// We have parsed all the doc comments
+        Finished,
+    }
 
     // State machine corresponding to our current progress in the macro
     let mut doc_comment_progress = DocCommentProgress::NotReached;
@@ -259,7 +236,7 @@ pub fn docstr(input: TokenStream) -> TokenStream {
             // this token is passed verbatim to the macro at the end,
             // after the doc comments
             tt if doc_comment_progress == DocCommentProgress::Finished => {
-                after.extend([tt]);
+                tokens_after_doc_comments.extend([tt]);
                 continue;
             }
             // start of doc comment
@@ -307,10 +284,11 @@ pub fn docstr(input: TokenStream) -> TokenStream {
                     _ => false,
                 };
 
-                before.extend([tt]);
+                tokens_before_doc_comments.extend([tt]);
 
                 if insert_comma {
-                    before.extend([TokenTree::Punct(Punct::new(',', Spacing::Joint))]);
+                    tokens_before_doc_comments
+                        .extend([TokenTree::Punct(Punct::new(',', Spacing::Joint))]);
                 }
 
                 continue;
@@ -428,7 +406,7 @@ pub fn docstr(input: TokenStream) -> TokenStream {
     if doc_comments.is_empty() {
         compile_error(
             Span::call_site(),
-            "expected at least 1 documentation comment `/// ...`",
+            "requires at least a documentation comment argument: `/// ...`",
         );
     }
 
@@ -451,13 +429,13 @@ pub fn docstr(input: TokenStream) -> TokenStream {
         })
         .unwrap_or_default();
 
-    let Some(macro_) = macro_ else {
-        if !before.is_empty() || !after.is_empty() {
+    let Some(macro_) = macro_path else {
+        if !tokens_before_doc_comments.is_empty() || !tokens_after_doc_comments.is_empty() {
             compile_error(
                 Span::call_site(),
                 concat!(
-                    "expected macro input to only contain doc comments `///`, ",
-                    "because you haven't supplied a path to a macro as the 1st argument"
+                    "expected macro input to only contain doc comments: `/// ...`, ",
+                    "because you haven't supplied a macro path as the 1st argument"
                 ),
             );
         }
@@ -476,8 +454,7 @@ pub fn docstr(input: TokenStream) -> TokenStream {
 
     // The following:
     //
-    // let a = docstr!(
-    //     format,
+    // let a = docstr!(format!
     //     hello
     //     /// foo
     //     /// bar
@@ -500,7 +477,7 @@ pub fn docstr(input: TokenStream) -> TokenStream {
             TokenStream::from_iter(
                 // format!(hello, "foo\nbar", a, b)
                 //         ^^^^^^
-                before
+                tokens_before_doc_comments
                     .into_iter()
                     .chain([
                         // format!(hello, "foo\nbar", a, b)
@@ -512,10 +489,114 @@ pub fn docstr(input: TokenStream) -> TokenStream {
                     ])
                     // format!(hello, "foo\nbar", a, b)
                     //                            ^^^^
-                    .chain(after),
+                    .chain(tokens_after_doc_comments),
             ),
         ))]),
     )
+}
+
+/// Extracts path to macro, if one exists
+///
+/// ```ignore
+/// docstr!(::std::format!
+///         ^^^^^^^^^^^^^^
+///     /// ...
+/// )
+/// ```
+fn extract_macro_path(
+    input: &mut std::iter::Peekable<proc_macro::token_stream::IntoIter>,
+) -> Result<Option<TokenStream>, CompileError> {
+    let mut macro_path = TokenStream::new();
+
+    enum PreviousMacroPathToken {
+        PathSeparator,
+        Ident,
+    }
+
+    // Tracked for better error messages
+    let mut previous_macro_path_token = None;
+
+    macro_rules! invalid_macro_path {
+        () => {
+            CompileError::new(
+                macro_path
+                    .into_iter()
+                    .next()
+                    .map(|tt| tt.span())
+                    .unwrap_or_else(Span::call_site),
+                "invalid macro path",
+            )
+        };
+    }
+
+    // on the first compile error we stop trying to process the path because it won't
+    // make any sense after that
+    loop {
+        let tt = input.next();
+        match tt {
+            // Reached end of macro
+            //
+            // std::format!
+            //            ^
+            Some(TokenTree::Punct(exclamation)) if exclamation == '!' => {
+                macro_path.extend([TokenTree::Punct(exclamation)]);
+                break;
+            }
+            // std::format!
+            //    ^^
+            Some(TokenTree::Punct(colon)) if colon == ':' => {
+                match previous_macro_path_token {
+                    Some(PreviousMacroPathToken::Ident) | None => {
+                        previous_macro_path_token = Some(PreviousMacroPathToken::PathSeparator);
+                    }
+                    Some(PreviousMacroPathToken::PathSeparator) => {
+                        return Err(invalid_macro_path!());
+                    }
+                }
+
+                macro_path.extend([TokenTree::Punct(colon)]);
+
+                match input.next() {
+                    // std::format!
+                    //     ^
+                    Some(TokenTree::Punct(colon)) if colon == ':' => {
+                        macro_path.extend([TokenTree::Punct(colon)]);
+                    }
+                    _ => {
+                        return Err(invalid_macro_path!());
+                    }
+                }
+            }
+            // std::format!
+            // ^^^
+            //      ^^^^^^
+            Some(TokenTree::Ident(ident)) => match previous_macro_path_token {
+                Some(PreviousMacroPathToken::PathSeparator) | None => {
+                    macro_path.extend([TokenTree::Ident(ident)]);
+                    previous_macro_path_token = Some(PreviousMacroPathToken::Ident);
+                }
+                Some(PreviousMacroPathToken::Ident) => {
+                    return Err(invalid_macro_path!());
+                }
+            },
+            _ if !macro_path.is_empty() => {
+                let macro_path_display = macro_path.to_string();
+                let last_token = macro_path.into_iter().last().expect("!.is_empty()");
+                return Err(CompileError::new(
+                    last_token.span(),
+                    format!("macro path must be followed by `!`, try: `{macro_path_display}!`"),
+                ));
+            }
+            _ => {
+                return Err(CompileError::new(
+                    tt.map(|tt| tt.span()).unwrap_or_else(Span::call_site),
+                    "unexpected token",
+                ));
+            }
+        }
+    }
+
+    Ok(Some(macro_path))
 }
 
 /// `.into_iter()` generates `compile_error!($message)` at `$span`
@@ -524,6 +605,12 @@ struct CompileError {
     pub span: Span,
     /// Message of the compile error
     pub message: String,
+}
+
+impl From<CompileError> for TokenStream {
+    fn from(value: CompileError) -> Self {
+        value.into_iter().collect()
+    }
 }
 
 impl CompileError {
@@ -562,27 +649,4 @@ impl IntoIterator for CompileError {
         ]
         .into_iter()
     }
-}
-
-/// In the middle of `docstr!(...)` macro's invocation, we will always have doc comments.
-///
-/// ```ignore
-/// docstr!(
-///     // DocComments::NotReached
-///     but we can have tokens here
-///     // DocComments::Inside
-///     /// foo
-///     /// bar
-///     // DocComments::Finished
-///     and here too
-/// )
-/// ```
-#[derive(Eq, PartialEq, PartialOrd, Ord)]
-enum DocCommentProgress {
-    /// doc comments `///` not reached yet
-    NotReached,
-    /// currently we are INSIDE the doc comments
-    Inside,
-    /// We have parsed all the doc comments
-    Finished,
 }

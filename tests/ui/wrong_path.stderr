@@ -1,0 +1,35 @@
+error: macro path must be followed by `!`, try: `format!`
+ --> tests/ui/wrong_path.rs:2:21
+  |
+2 |     docstr::docstr!(format
+  |                     ^^^^^^
+
+error: invalid macro path
+ --> tests/ui/wrong_path.rs:6:21
+  |
+6 |     docstr::docstr!(std format
+  |                     ^^^
+
+error: invalid macro path
+  --> tests/ui/wrong_path.rs:10:21
+   |
+10 |     docstr::docstr!(std format!
+   |                     ^^^
+
+error: invalid macro path
+  --> tests/ui/wrong_path.rs:14:21
+   |
+14 |     docstr::docstr!(std:::format!
+   |                     ^^^
+
+error: invalid macro path
+  --> tests/ui/wrong_path.rs:18:21
+   |
+18 |     docstr::docstr!(std:format!
+   |                     ^^^
+
+error: expected identifier, found `!`
+  --> tests/ui/wrong_path.rs:22:36
+   |
+22 |     docstr::docstr!(::std::format::!
+   |                                    ^ expected identifier
