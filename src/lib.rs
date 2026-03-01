@@ -39,32 +39,50 @@
 //!
 //! # Composition
 //!
-//! [`docstr!`](crate::docstr) can pass the generated string to any macro:
+//! [`docstr!`](crate::docstr) can pass the generated string to any macro. This example shows the string being forwarded to the [`format!`] macro:
 //!
-//! ```rust
-//! use docstr::docstr;
-//!
-//! let age = 21;
+//! ```
+//! # use docstr::docstr;
 //! let name = "Bob";
-//! let colors = ["red", "green", "blue"];
+//! let age = 21;
 //!
 //! let greeting: String = docstr!(format!
-//!                              //^^^^^^^ the generated string is passed to `format!`
-//!                              //        as the 1st argument
 //!     /// Hello, my name is {name}.
-//!     /// I am {age} years old!
-//!     ///
-//!     /// My favorite color is: {}
-//!
-//!     // anything after the doc comments is passed directly at the end
-//!     colors[1]
+//!     /// I am {} years old!
+//!     age
 //! );
-//! //^ above expands to: format!("...", colors[1])
 //!
-//! assert_eq!(greeting, "Hello, my name is Bob.\nI am 21 years old!\n\nMy favorite color is: green");
+//! assert_eq!(greeting, "\
+//! Hello, my name is Bob.
+//! I am 21 years old!");
 //! ```
 //!
-//! Injecting arguments before the generated string is also possible.
+//! This is great because there's just a single macro, `docstr!`, that can do anything. No need for `docstr_format!`, `docstr_println!`, `docstr_write!`, etc.
+//!
+//! ## How composition works
+//!
+//! If the first argument to `docstr!` is a path to a macro, that macro will be called. This invocation:
+//!
+//! ```
+//! # use docstr::docstr;
+//! let greeting: String = docstr!(format!
+//!     /// Hello, my name is {name}.
+//!     /// I am {} years old!
+//!     age
+//! );
+//! ```
+//!
+//! Is equivalent to this:
+//!
+//! ```
+//! let greeting: String = format!("\
+//! Hello, my name is {name}.
+//! I am {} years old!"
+//!     age,
+//! );
+//! ```
+//!
+//! You can inject arguments before the format string:
 //!
 //! ```rust
 //! # let mut w = String::new();
