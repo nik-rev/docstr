@@ -9,7 +9,7 @@
 
     This region was generated from Rust documentation comments by `cargo-reedme` using this command:
 
-        cargo reedme
+        cargo +nightly reedme
 
     for more info: https://github.com/nik-rev/cargo-reedme
 
@@ -21,7 +21,7 @@ cargo-reedme: info-end -->
 ![msrv](https://img.shields.io/badge/msrv-1.65-blue?style=flat-square&logo=rust)
 [![github](https://img.shields.io/github/stars/nik-rev/docstr)](https://github.com/nik-rev/docstr)
 
-This crate provides a macro [`docstr!`](https://docs.rs/docstr/0.4.10/docstr/macro.docstr.html) for ergonomically creating multi-line string literals.
+This crate provides a macro [`docstr!`](https://docs.rs/docstr/latest/docstr/macro.docstr.html) for ergonomically creating multi-line string literals.
 
 ```toml
 docstr = "0.4"
@@ -31,7 +31,7 @@ Note: `docstr` does not have any dependencies such as `syn` or `quote`, so compi
 
 ## Usage
 
-[`docstr!`](https://docs.rs/docstr/0.4.10/docstr/macro.docstr.html) takes documentation comments as arguments and converts them into a string
+[`docstr!`](https://docs.rs/docstr/latest/docstr/macro.docstr.html) takes documentation comments as arguments and converts them into a string
 
 ```rust
 use docstr::docstr;
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 
 ## Composition
 
-[`docstr!`](https://docs.rs/docstr/0.4.10/docstr/macro.docstr.html) can pass the generated string to any macro. This example shows the string being forwarded to the [`format!`](https://doc.rust-lang.org/stable/alloc/macro.format.html) macro:
+[`docstr!`](https://docs.rs/docstr/latest/docstr/macro.docstr.html) can pass the generated string to any macro. This example shows the string being forwarded to the [`format!`](https://doc.rust-lang.org/stable/alloc/macro.format.html) macro:
 
 ```rust
 let name = "Bob";
@@ -91,8 +91,8 @@ Is equivalent to this:
 ```rust
 let greeting: String = format!("\
 Hello, my name is {name}.
-I am {} years old!"
-    age,
+I am {} years old!",
+    age
 );
 ```
 
