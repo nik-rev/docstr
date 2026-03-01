@@ -64,6 +64,8 @@
 //!
 //! ```
 //! # use docstr::docstr;
+//! # let name = "";
+//! # let age = "";
 //! let greeting: String = docstr!(format!
 //!     /// Hello, my name is {name}.
 //!     /// I am {} years old!
@@ -74,10 +76,12 @@
 //! Is equivalent to this:
 //!
 //! ```
+//! # let name = "";
+//! # let age = "";
 //! let greeting: String = format!("\
 //! Hello, my name is {name}.
-//! I am {} years old!"
-//!     age,
+//! I am {} years old!",
+//!     age
 //! );
 //! ```
 //!
