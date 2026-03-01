@@ -21,8 +21,7 @@ cargo-reedme: info-end -->
 ![msrv](https://img.shields.io/badge/msrv-1.65-blue?style=flat-square&logo=rust)
 [![github](https://img.shields.io/github/stars/nik-rev/docstr)](https://github.com/nik-rev/docstr)
 
-This crate provides a procedural macro for ergonomically creating multi-line string literals.
-It is an alternative to [`indoc`](https://docs.rs/indoc/latest/indoc/).
+This crate provides a macro [`docstr!`](https://docs.rs/docstr/0.4.9/docstr/macro.docstr.html) for ergonomically creating multi-line string literals.
 
 ```toml
 docstr = "0.4"

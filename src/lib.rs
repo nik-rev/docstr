@@ -4,8 +4,7 @@
 #![doc = concat!("![msrv](https://img.shields.io/badge/msrv-", env!("CARGO_PKG_RUST_VERSION"), "-blue?style=flat-square&logo=rust)")]
 //! [![github](https://img.shields.io/github/stars/nik-rev/docstr)](https://github.com/nik-rev/docstr)
 //!
-//! This crate provides a procedural macro for ergonomically creating multi-line string literals.
-//! It is an alternative to [`indoc`](https://docs.rs/indoc/latest/indoc/).
+//! This crate provides a macro [`docstr!`] for ergonomically creating multi-line string literals.
 //!
 //! ```toml
 #![doc = concat!(env!("CARGO_PKG_NAME"), " = ", "\"", env!("CARGO_PKG_VERSION_MAJOR"), ".", env!("CARGO_PKG_VERSION_MINOR"), "\"")]
