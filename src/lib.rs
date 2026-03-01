@@ -82,6 +82,15 @@
 //! # use std::fmt::Write as _;
 //! write!(w, "Hello, world!");
 //! ```
+//!
+//! # Global Import
+//!
+//! This will make `docstr!` globally accessible in your entire crate, without needing to import it:
+//!
+//! ```
+//! #[macro_use(docstr)]
+//! extern crate docstr;
+//! ```
 
 use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
 
