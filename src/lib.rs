@@ -113,7 +113,15 @@
 //! extern crate docstr;
 //! ```
 
-use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
+use proc_macro::Delimiter;
+use proc_macro::Group;
+use proc_macro::Ident;
+use proc_macro::Literal;
+use proc_macro::Punct;
+use proc_macro::Spacing;
+use proc_macro::Span;
+use proc_macro::TokenStream;
+use proc_macro::TokenTree;
 
 /// Turns documentation comments into string at compile-time.
 ///
@@ -297,11 +305,13 @@ pub fn docstr(input: TokenStream) -> TokenStream {
                 //     ^ next token
                 // )
                 let insert_comma = match input.peek() {
-                    Some(TokenTree::Punct(next)) => match &tt {
-                        TokenTree::Punct(current) if *current == ',' && *next == '#' => false,
-                        _ if *next == '#' => true,
-                        _ => false,
-                    },
+                    Some(TokenTree::Punct(next)) => {
+                        match &tt {
+                            TokenTree::Punct(current) if *current == ',' && *next == '#' => false,
+                            _ if *next == '#' => true,
+                            _ => false,
+                        }
+                    }
                     _ => false,
                 };
 
@@ -591,15 +601,17 @@ fn extract_macro_path(
             // std::format!
             // ^^^
             //      ^^^^^^
-            Some(TokenTree::Ident(ident)) => match previous_macro_path_token {
-                Some(PreviousMacroPathToken::PathSeparator) | None => {
-                    macro_path.extend([TokenTree::Ident(ident)]);
-                    previous_macro_path_token = Some(PreviousMacroPathToken::Ident);
+            Some(TokenTree::Ident(ident)) => {
+                match previous_macro_path_token {
+                    Some(PreviousMacroPathToken::PathSeparator) | None => {
+                        macro_path.extend([TokenTree::Ident(ident)]);
+                        previous_macro_path_token = Some(PreviousMacroPathToken::Ident);
+                    }
+                    Some(PreviousMacroPathToken::Ident) => {
+                        return Err(invalid_macro_path!());
+                    }
                 }
-                Some(PreviousMacroPathToken::Ident) => {
-                    return Err(invalid_macro_path!());
-                }
-            },
+            }
             _ if !macro_path.is_empty() => {
                 let macro_path_display = macro_path.to_string();
                 let last_token = macro_path.into_iter().last().expect("!.is_empty()");
